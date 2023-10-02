@@ -23,7 +23,6 @@ class ModSimpleFileListerHelperv10
 {
     static function getFileList(
         $params,
-        $forceDirLocation,
         $sfl_dirlocation,
         $sfl_basepath,
         $sfl_maxfiles,
@@ -44,7 +43,7 @@ class ModSimpleFileListerHelperv10
         if (strlen($sfl_dirlocation) == 0 && strlen($sfl_userlocation) == 0) {
             $results .= JText::_('NO_DIR_GIVEN');
         } else {
-            $results .= ModSimpleFileListerHelperv10::getDirContents($params,$forceDirLocation, $sfl_dirlocation, $sfl_basepath, $sfl_maxfiles, $sfl_userlocation);
+            $results .= ModSimpleFileListerHelperv10::getDirContents($params, $sfl_dirlocation, $sfl_basepath, $sfl_maxfiles, $sfl_userlocation);
         }
 
         $results .= "</div>";
@@ -52,7 +51,7 @@ class ModSimpleFileListerHelperv10
         return $results;
     }
 
-    static function getDirContents($params, $forceDirLocation,$sfl_dirlocation, $sfl_basepath, $sfl_maxfiles, $sfl_userlocation)
+    static function getDirContents($params, $sfl_dirlocation, $sfl_basepath, $sfl_maxfiles, $sfl_userlocation)
     {
 
         $session = JFactory::getSession();
@@ -61,12 +60,7 @@ class ModSimpleFileListerHelperv10
         $sfl_currentdir = "";
         $browsedir = "";
         $filelist = "";
-        if($forceDirLocation=='')
-            $sfl_dirlocationdefault = $params->get('sfl_dirlocation', '.' . DIRECTORY_SEPARATOR . 'images');
-        else
-            $sfl_dirlocationdefault = $forceDirLocation;
-
-
+        $sfl_dirlocationdefault = $params->get('sfl_dirlocation', '.' . DIRECTORY_SEPARATOR . 'images');
         $sfl_next = $params->get('sfl_next', '0');
         $sfl_showfilesize = $params->get('sfl_showfilesize', '0');
         $sfl_onlyimg = $params->get('sfl_onlyimg', '0');
@@ -347,7 +341,7 @@ $results .= "$baseurl .= $browsedir";
 
                                 } elseif ($fdir) {
                                     $lfile['name'] = substr($lfile['name'], 5);
-                                    $imagePath = JURI::root() . 'plugins/content/simplefilebrowser/images/directory.png';
+                                    $imagePath = JURI::root() . 'components/com_oxfordsmsfiles/images/directory.png';
                                     $tmpfile .= '<img height="16" src="' . $imagePath . '" title = "' . $lfile['name'] . '" alt = "' . $lfile['name'] . '" />';
 
                                 } elseif ($sfl_showicon == 1) {
@@ -502,19 +496,25 @@ $results .= "$baseurl .= $browsedir";
                 // Fix Windows path...
                 $baseurl .= str_replace("\\", "", $serverurl);
             } else {
+
+//                echo '$dirlocation:'.$dirlocation.'*<br>';
+/*
                 if ((substr($dirlocation, 1, 2) === ":\\") || (substr($dirlocation, 0, 1) === "/")) {
                     // Server root path
                     $baseurl = "file://" . str_replace("\\", "/", $dirlocation);
                 } else {
-
+*/
                     $serverurl = str_replace("\\", "/", $_SERVER["DOCUMENT_ROOT"]);
 
                     $baseurl = str_replace("\\", "/", $dirlocation);
 
                     $baseurl = str_replace($serverurl, "", $baseurl);
                     //$baseurl = dirname($_SERVER["HTTP_REFERER"])."/".$baseurl;
-                    $baseurl = $protocol . $_SERVER["HTTP_HOST"] . $folder . "/" . $baseurl;
-                }
+                    if($baseurl[0] == '/')
+                        $baseurl = $protocol . $_SERVER["HTTP_HOST"] . $folder . $baseurl;
+                    else
+                        $baseurl = $protocol . $_SERVER["HTTP_HOST"] . $folder . "/" . $baseurl;
+//                }
             }
         } else {
             $baseurl = $sfl_basepath;
@@ -533,16 +533,16 @@ $results .= "$baseurl .= $browsedir";
     static function getFileFormatImagesLink(?string $fileName)
     {
         if ($fileName === false)
-            return JURI::root() . 'plugins/content/simplefilebrowser/images/formats/_blank.png';
+            return JURI::root() . 'components/com_oxfordsmsfiles/images/formats/_blank.png';
 
         $fileNameParts = explode('.', $fileName);
         $extension = end($fileNameParts);
 
         $filePath = JPATH_COMPONENT_SITE . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'formats' . DIRECTORY_SEPARATOR . $extension . '.png';
         if (file_exists($filePath))
-            return JURI::root() . 'plugins/content/simplefilebrowser/images/formats/' . $extension . '.png';
+            return JURI::root() . 'components/com_oxfordsmsfiles/images/formats/' . $extension . '.png';
         else
-            return JURI::root() . 'plugins/content/simplefilebrowser/images/formats/_blank.png';
+            return JURI::root() . 'components/com_oxfordsmsfiles/images/formats/_blank.png';
     }
 
     static function getFileSizePP($filesize)
@@ -569,7 +569,7 @@ $results .= "$baseurl .= $browsedir";
 class SFLAjaxServlet
 {
 
-    static function getContent($action, $params, $forceDirLocation,$sfl_dirlocation, $sfl_basepath, $sfl_maxfiles, $sfl_userlocation, $sfl_file)
+    static function getContent($action, $params, $sfl_dirlocation, $sfl_basepath, $sfl_maxfiles, $sfl_userlocation, $sfl_file)
     {
         $retVal = "false";
 
@@ -587,7 +587,7 @@ class SFLAjaxServlet
             case "next" || "prev" || "dir" || "sort":
 
                 $retVal = "<div style=\"text-align: left\">";
-                $retVal .= ModSimpleFileListerHelperv10::getDirContents($params, $forceDirLocation,$sfl_dirlocation, $sfl_basepath, $sfl_maxfiles, $sfl_userlocation);
+                $retVal .= ModSimpleFileListerHelperv10::getDirContents($params, $sfl_dirlocation, $sfl_basepath, $sfl_maxfiles, $sfl_userlocation);
                 $retVal .= "</div>";
                 break;
 
