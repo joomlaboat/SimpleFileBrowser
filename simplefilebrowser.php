@@ -13,10 +13,12 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Version;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\Plugin\CMSPlugin;
 
-jimport('joomla.plugin.plugin');
+//jimport('joomla.plugin.plugin');
 
-class plgContentSimpleFileBrowser extends JPlugin
+final class SimpleFileBrowser extends CMSPlugin
+//class plgContentSimpleFileBrowser extends JPlugin
 {
     public function onContentPrepare($context, $article)
     {
