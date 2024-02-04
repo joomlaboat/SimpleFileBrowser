@@ -14,6 +14,7 @@ use Joomla\CMS\Version;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Plugin\CMSPlugin;
+use CustomTables\CTMiscHelper;
 
 //jimport('joomla.plugin.plugin');
 
@@ -31,7 +32,7 @@ final class SimpleFileBrowser extends CMSPlugin
     {
         $options = array();
         $text_outside_textarea = $this->strip_html_tags_textarea($text);
-        $fList = JoomlaBasicMisc::getListToReplace('simplefilebrowser', $options, $text_outside_textarea, '{}', '=');
+        $fList = CTMiscHelper::getListToReplace('simplefilebrowser', $options, $text_outside_textarea, '{}', '=');
 
         if (count($fList) == 0)
             return;
